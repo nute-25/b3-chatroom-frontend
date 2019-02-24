@@ -1,5 +1,10 @@
 <template>
     <div class="login">
+        <ul>
+            <li v-for="error in errorsArray">
+                {{ error }}
+            </li>
+        </ul>
         <h1>Login</h1>
         <form @submit="sendMessage">
             <label>login</label>
@@ -17,13 +22,15 @@
         name: "Login",
         data() {
             return {
+                user: false,
                 userLogin: '',
-                userPassword: ''
+                userPassword: '',
+                errorsArray: []
             }
         },
         methods : {
             sendMessage: function (e) {
-
+                let self = this;
                 let data = {
                     login: this.userLogin,
                     password: this.userPassword
@@ -45,6 +52,7 @@
                         // reponse que l on se renvoie en php (ex: false si login pas bon)
                         console.log(JSON.stringify(myJson));
                         //myJson['']
+                        self.errorsArray = myJson;
                     });
                 e.preventDefault();
             },
