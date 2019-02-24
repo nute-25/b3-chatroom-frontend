@@ -22,7 +22,7 @@
             }
         },
         methods : {
-            sendMessage: function () {
+            sendMessage: function (e) {
 
                 let data = {
                     login: this.userLogin,
@@ -30,7 +30,7 @@
                 };
                 // console.log(data);
 
-                fetch('http://http://localhost/b3-chatroom-backend/controllers/users_controller.php?action=test', {
+                fetch('http://localhost/b3-chatroom-backend/controllers/users_controller.php?action=login', {
                     method: 'POST', // or 'PUT'
                     body: JSON.stringify(data), // data can be string or {object}!
                     headers:{
@@ -44,11 +44,10 @@
                     .then(function(myJson) {
                         // reponse que l on se renvoie en php (ex: false si login pas bon)
                         console.log(JSON.stringify(myJson));
+                        //myJson['']
                     });
-            },
-            login: function(e){
                 e.preventDefault();
-            }
+            },
         }
     }
 </script>
