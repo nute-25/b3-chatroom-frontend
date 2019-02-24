@@ -8,17 +8,23 @@
                     {{ error }}
                 </li>
             </ul>
-            <h1>Login</h1>
+
             <form @submit="sendLogin">
-                <label>login</label>
-                <input type="text" name="login" v-model="userLogin" placeholder="Enter your login">
-                <label>password</label>
-                <input type="password" name="login" v-model="userPassword" placeholder="Enter your password">
+                <fieldset>
+                    <legend>Login</legend>
+                    <label>login</label>
+                    <input type="text" name="login" v-model="userLogin" placeholder="Enter your login">
+                    <label>password</label>
+                    <input type="password" name="login" v-model="userPassword" placeholder="Enter your password">
+                </fieldset>
                 <input type="submit" value="login">
             </form>
         </div>
 
-        <h2 v-else>User connecté : {{ user.handle}} </h2>
+        <div v-else>
+            <h2>User connecté : {{ user.handle }} </h2>
+        </div>
+
 
     </div>
 </template>
@@ -82,19 +88,7 @@
 </script>
 
 <style scoped>
-    .errors {
-        color: #ff5555;
-    }
-
-    ul {
-        list-style-type: none;
-    }
-
     form {
-        display: flex;
-        flex-direction: column;
-        width: 300px;
-        text-align: left;
-        margin: auto;
+        width: 400px;
     }
 </style>
