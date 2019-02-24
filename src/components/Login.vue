@@ -1,7 +1,7 @@
 <template>
-    <div class="login">
+    <div class="login" v-if="!user">
         <ul>
-            <li v-for="error in errorsArray">
+            <li v-for="error in errorsArray" v-bind:key="error">
                 {{ error }}
             </li>
         </ul>
@@ -37,6 +37,7 @@
                 };
                 // console.log(data);
 
+                // appel fetch
                 fetch('http://localhost/b3-chatroom-backend/controllers/users_controller.php?action=login', {
                     method: 'POST', // or 'PUT'
                     body: JSON.stringify(data), // data can be string or {object}!
@@ -45,14 +46,27 @@
                     }
                 })
                     .then(function(response) {
-                        // reponse retournee par le backend
+                        // console.log(response.json());
+                        // reponse retournee par le backend php sous la forme de promesse
+                        // lecture données et parsing json()
                         return response.json();
                     })
                     .then(function(myJson) {
-                        // reponse que l on se renvoie en php (ex: false si login pas bon)
+                        // recupération des valeurs retournées dans la promesse (ex: false ou erreurs à afficher si login pas bon)
                         console.log(JSON.stringify(myJson));
-                        //myJson['']
-                        self.errorsArray = myJson;
+                        console.log(myJson[0].id);
+                        // si un user s'est connecté
+                        if (myJson[0].login) {
+                            self.user = true;
+                            // on vide le tableau d'erreurs
+                            self.errorsArray = [];
+                        }
+                        else {
+                            // self.user = false;
+                            // sinon on affiche les erreurs lui expliquant pourquoi il n'a pas pu se logguer
+                            self.errorsArray = myJson;
+                        }
+
                     });
                 e.preventDefault();
             },
