@@ -53,7 +53,10 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="chatroomData in chatroomDatasArray" v-bind:key="chatroomData">
+                <tr v-if="chatroomDatasArray.length === 0">
+                    <td colspan="5">No chatroom found</td>
+                </tr>
+                <tr v-else v-for="chatroomData in chatroomDatasArray" v-bind:key="chatroomData">
                     <td>{{ chatroomData.id }}</td>
                     <td>{{ chatroomData.title }}</td>
                     <td>{{ chatroomData.user_id }}</td>
@@ -108,21 +111,22 @@
                         // lecture données et parsing json()
                         return response.json();
                     })
-                    .then(function(myJson) {
+                    .then(function(answer) {
                         // recupération des valeurs retournées dans la promesse (ex: false ou erreurs à afficher si login pas bon)
-                        /*console.log(JSON.stringify(myJson));
-                        console.log(myJson['id']);*/
+                        /*console.log(JSON.stringify(answer));
+                        console.log(answer['id']);*/
                         // si un user s'est connecté
-                        if (myJson.login) {
+                        if (answer.login) {
                             // on enregistre ses données utilisateur
-                            self.user = myJson;
+                            self.user = answer;
                             // on vide le tableau d'erreurs
                             self.errorsArray = [];
+                            self.getChatroomUser(e);
                         }
                         else {
                             // self.user = false;
                             // sinon on affiche les erreurs lui expliquant pourquoi il n'a pas pu se logguer
-                            self.errorsArray = myJson;
+                            self.errorsArray = answer;
                         }
                     });
                 e.preventDefault();
@@ -148,20 +152,51 @@
                         // lecture données et parsing json()
                         return response.json();
                     })
-                    .then(function(myJson) {
+                    .then(function(answer) {
                         // recupération des valeurs retournées dans la promesse (ex: false ou erreurs à afficher si les champs requis pas bons)
-                        // console.log(JSON.stringify(myJson));
+                        // console.log(JSON.stringify(answer));
                         // si une chatroom a été enregistré
-                        if (myJson.title) {
+                        if (answer.title) {
                             // on enregistre ses données
-                            self.chatroom = myJson;
+                            self.chatroom = answer;
                             // on vide le tableau d'erreurs
                             self.errorsArray = [];
                         }
                         else {
                             // sinon on affiche les erreurs lui expliquant pourquoi il n'a pas pu créer une chatroom
-                            self.errorsArray = myJson;
+                            self.errorsArray = answer;
                         }
+                    });
+                e.preventDefault();
+            },
+            getChatroomUser : function (e) {
+                let self = this;
+                let data = {
+                    user_id: this.user.id
+                };
+
+                // appel fetch
+                fetch('http://localhost/b3-chatroom-backend/controllers/chatrooms_controller.php?action=list', {
+                    method: 'POST', // or 'PUT'
+                    body: JSON.stringify(data), // data can be string or {object}!
+                    headers:{
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(function(response) {
+                        // reponse retournee par le backend php sous la forme de promesse
+                        // lecture données et parsing json()
+                        return response.json();
+                    })
+                    .then(function(answer) {
+                        // recupération des valeurs retournées dans la promesse (ex: false ou chatroom(s) de l'utilisateur)
+                        console.log(JSON.stringify(answer));
+
+                        if (answer.length !== 0) {
+                            // stockage des différents chatrooms de l'user
+                            self.chatroomDatasArray = answer;
+                        }
+
                     });
                 e.preventDefault();
             }
