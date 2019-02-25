@@ -27,7 +27,10 @@
 
         <div v-else>
             <h2>User connecté : {{ user.handle }} </h2>
+
             <!--CHATROOM-->
+
+            <!--Création Chatroom par un utilisateur-->
             <form @submit="createChatroom">
                 <fieldset>
                     <legend>Chatroom register</legend>
@@ -36,6 +39,30 @@
                 </fieldset>
                 <input type="submit" value="Create">
             </form>
+
+            <!--Affichage Chatroom de l'utilisateur-->
+            <table>
+                <thead>
+                <tr>
+                    <th>title</th>
+                    <th>user_id</th>
+                    <th>created</th>
+                    <th>modified</th>
+                    <th>update</th>
+                    <th>messages</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="chatroomData in chatroomDatasArray" v-bind:key="chatroomData">
+                    <td>{{ chatroomData.id }}</td>
+                    <td>{{ chatroomData.title }}</td>
+                    <td>{{ chatroomData.user_id }}</td>
+                    <td>{{ chatroomData.created }}</td>
+                    <td>{{ chatroomData.modified }}</td>
+                </tr>
+                </tbody>
+            </table>
+
         </div>
 
 
@@ -53,6 +80,7 @@
 
                 chatroom: false,
                 chatroomTitle: '',
+                chatroomDatasArray: [],
 
                 errorsArray: []
             }
