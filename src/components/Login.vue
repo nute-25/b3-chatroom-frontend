@@ -1,28 +1,41 @@
 <template>
     <div class="login">
 
-        <!--formulaire de login-->
-        <div v-if="!user">
-            <ul>
-                <li v-for="error in errorsArray" v-bind:key="error" class="errors">
-                    {{ error }}
-                </li>
-            </ul>
 
+        <!--ERREURS-->
+        <ul>
+            <li v-for="error in errorsArray" v-bind:key="error" class="errors">
+                {{ error }}
+            </li>
+        </ul>
+
+
+        <div v-if="!user">
+            <!--CONNEXION-->
             <form @submit="sendLogin">
                 <fieldset>
                     <legend>Login</legend>
-                    <label>login</label>
-                    <input type="text" name="login" v-model="userLogin" placeholder="Enter your login">
-                    <label>password</label>
-                    <input type="password" name="login" v-model="userPassword" placeholder="Enter your password">
+                    <label for="login">login</label>
+                    <input type="text" name="login" id="login" v-model="userLogin" placeholder="Enter your login">
+                    <label for="password">password</label>
+                    <input type="password" name="login" id="password" v-model="userPassword" placeholder="Enter your password">
                 </fieldset>
-                <input type="submit" value="login">
+                <input type="submit" value="Login">
             </form>
         </div>
 
+
         <div v-else>
             <h2>User connecté : {{ user.handle }} </h2>
+            <!--CHATROOM-->
+            <form @submit="createChatroom">
+                <fieldset>
+                    <legend>Chatroom register</legend>
+                    <label for="chatroomTitle">title</label>
+                    <input type="text"  name="title" id="chatroomTitle" v-model="chatroomTitle" placeholder="Enter chatroom's title">
+                </fieldset>
+                <input type="submit" value="Create">
+            </form>
         </div>
 
 
@@ -37,6 +50,10 @@
                 user: false,
                 userLogin: '',
                 userPassword: '',
+
+                chatroom: false,
+                chatroomTitle: '',
+
                 errorsArray: []
             }
         },
@@ -65,8 +82,8 @@
                     })
                     .then(function(myJson) {
                         // recupération des valeurs retournées dans la promesse (ex: false ou erreurs à afficher si login pas bon)
-                        console.log(JSON.stringify(myJson));
-                        console.log(myJson['id']);
+                        /*console.log(JSON.stringify(myJson));
+                        console.log(myJson['id']);*/
                         // si un user s'est connecté
                         if (myJson.login) {
                             // on enregistre ses données utilisateur
@@ -79,10 +96,47 @@
                             // sinon on affiche les erreurs lui expliquant pourquoi il n'a pas pu se logguer
                             self.errorsArray = myJson;
                         }
-
                     });
                 e.preventDefault();
             },
+            createChatroom : function(e) {
+                let self = this;
+                let data = {
+                    title: this.chatroomTitle,
+                    user_id: this.user.id
+                };
+                // console.log(data);
+
+                // appel fetch
+                fetch('http://localhost/b3-chatroom-backend/controllers/chatrooms_controller.php?action=register', {
+                    method: 'POST', // or 'PUT'
+                    body: JSON.stringify(data), // data can be string or {object}!
+                    headers:{
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(function(response) {
+                        // reponse retournee par le backend php sous la forme de promesse
+                        // lecture données et parsing json()
+                        return response.json();
+                    })
+                    .then(function(myJson) {
+                        // recupération des valeurs retournées dans la promesse (ex: false ou erreurs à afficher si les champs requis pas bons)
+                        // console.log(JSON.stringify(myJson));
+                        // si une chatroom a été enregistré
+                        if (myJson.title) {
+                            // on enregistre ses données
+                            self.chatroom = myJson;
+                            // on vide le tableau d'erreurs
+                            self.errorsArray = [];
+                        }
+                        else {
+                            // sinon on affiche les erreurs lui expliquant pourquoi il n'a pas pu créer une chatroom
+                            self.errorsArray = myJson;
+                        }
+                    });
+                e.preventDefault();
+            }
         }
     }
 </script>
