@@ -28,6 +28,9 @@
     }
   }
 }
+h3 {
+  color: #42b983;
+}
 ul, form {
   margin-bottom: 2.5rem;
 }
