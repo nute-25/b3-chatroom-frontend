@@ -61,6 +61,9 @@ legend {
 label {
   cursor: default;
 }
+textarea {
+  resize: none;
+}
 input[type="submit"] {
   color: #FFF;
   background-color: #42b983;

@@ -30,6 +30,21 @@
 
             <!--MESSAGES-->
 
+            <!--Un utilisateur peut poster un message dans une chatroom-->
+            <h3>Add message in Chatroom</h3>
+            <form @submit="sendMessage">
+                <fieldset>
+                    <legend>Send message in Chatroom</legend>
+                    <label for="messageContent">Content</label>
+                    <textarea name="messageContent" id="messageContent" v-model="messageContent" placeholder="Enter your message"></textarea>
+                    <label for="messagechatroom">Chatroom</label>
+                    <select name="messagechatroom" id="messagechatroom" v-model="messageChatroom">
+                        <option v-for="chatroomData in chatroomDatasArray" v-bind:key="chatroomData.title" :value="chatroomData.id">{{ chatroomData.title }}</option>
+                    </select>
+                </fieldset>
+                <input type="submit" value="Send Message">
+            </form>
+
             <!--Affichage Messages de l'utilisateur-->
             <h3>Messages list of user</h3>
             <table>
@@ -136,9 +151,11 @@
 
                 messageDatasArray: [],
 
-                chatroom: false,
                 chatroomTitle: '',
                 chatroomDatasArray: [],
+
+                messageContent: '',
+                messageChatroom: '',
 
                 errorsArray: []
             }
@@ -187,6 +204,44 @@
                     });
                 e.preventDefault();
             },
+            sendMessage : function(e) {
+                let self = this;
+                let data = {
+                    content: this.messageContent,
+                    user_id: this.user.id,
+                    chatroom_id: this.messageChatroom
+                };
+                // console.log(data);
+
+                // appel fetch
+                fetch('http://localhost/b3-chatroom-backend/controllers/messages_controller.php?action=register', {
+                    method: 'POST', // or 'PUT'
+                    body: JSON.stringify(data), // data can be string or {object}!
+                    headers:{
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(function(response) {
+                        // reponse retournee par le backend php sous la forme de promesse
+                        // lecture données et parsing json()
+                        return response.json();
+                    })
+                    .then(function(answer) {
+                        // recupération des valeurs retournées dans la promesse (ex: false ou erreurs à afficher si les champs requis pas bons)
+                        // console.log(JSON.stringify(answer));
+                        // si une chatroom a été enregistré
+                        if (answer === true) {
+                            // on vide le tableau d'erreurs
+                            self.errorsArray = [];
+                            self.getMessageUser(e);
+                        }
+                        else {
+                            // sinon on affiche les erreurs lui expliquant pourquoi il n'a pas pu créer une chatroom
+                            self.errorsArray = answer;
+                        }
+                    });
+                e.preventDefault();
+            },
             createChatroom : function(e) {
                 let self = this;
                 let data = {
@@ -212,9 +267,7 @@
                         // recupération des valeurs retournées dans la promesse (ex: false ou erreurs à afficher si les champs requis pas bons)
                         // console.log(JSON.stringify(answer));
                         // si une chatroom a été enregistré
-                        if (answer.title) {
-                            // on enregistre ses données
-                            self.chatroom = answer;
+                        if (answer === true) {
                             // on vide le tableau d'erreurs
                             self.errorsArray = [];
                             // on met à jour la liste des chatrooms de l'utilisateur
@@ -248,7 +301,7 @@
                     })
                     .then(function(answer) {
                         // recupération des valeurs retournées dans la promesse (ex: false ou chatroom(s) de l'utilisateur)
-                        console.log(JSON.stringify(answer));
+                        // console.log(JSON.stringify(answer));
 
                         if (answer.length !== 0) {
                             // stockage des différents chatrooms de l'user
@@ -279,7 +332,7 @@
                     })
                     .then(function(answer) {
                         // recupération des valeurs retournées dans la promesse (ex: false ou chatroom(s) de l'utilisateur)
-                        console.log(JSON.stringify(answer));
+                        // console.log(JSON.stringify(answer));
 
                         if (answer.length !== 0) {
                             // stockage des différents chatrooms de l'user
