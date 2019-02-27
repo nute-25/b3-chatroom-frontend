@@ -28,74 +28,29 @@
         <div v-else>
             <h2>Connected user : {{ user.handle }} </h2>
 
-            <!--MESSAGES-->
-
-            <hr>
-            <!--Un utilisateur peut poster un message dans une chatroom-->
-            <h3>Add message in Chatroom</h3>
-            <form @submit="sendMessage">
-                <fieldset>
-                    <legend>Send message in Chatroom</legend>
-                    <label for="messageContent">Content</label>
-                    <textarea name="messageContent" id="messageContent" v-model="messageContent" placeholder="Enter your message"></textarea>
-                    <label for="messagechatroom">Chatroom</label>
-                    <select name="messagechatroom" id="messagechatroom" v-model="messageChatroom">
-                        <option v-for="chatroomData in chatroomDatasArray" v-bind:key="chatroomData.title" :value="chatroomData.id">{{ chatroomData.title }}</option>
-                    </select>
-                </fieldset>
-                <input type="submit" value="Send Message">
-            </form>
-
-            <hr>
-            <!--Affichage Messages de l'utilisateur-->
-            <h3>Messages list of user</h3>
-            <table>
-                <thead>
-                <tr>
-                    <th>content</th>
-                    <th>created</th>
-                    <th>chatroom_id</th>
-                    <th>delete</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr v-if="messageDatasArray.length === 0">
-                    <td colspan="5">No message found</td>
-                </tr>
-                <tr v-else v-for="messageData in messageDatasArray" v-bind:key="messageData.content">
-                    <td>{{ messageData.content }}</td>
-                    <td>{{ messageData.created }}</td>
-                    <td>{{ messageData.chatroom_id }}</td>
-                    <td><button v-on:click="deleteMessage(messageData.id)">delete</button></td>
-                </tr>
-                </tbody>
-            </table>
-
-
 
             <!--CHATROOM-->
 
             <hr>
             <!--Création Chatroom par un utilisateur-->
-            <h3>Create chatroom</h3>
+            <h3>Create a chatroom</h3>
             <form @submit="createChatroom">
                 <fieldset>
                     <legend>Chatroom register</legend>
                     <label for="chatroomTitle">title</label>
-                    <input type="text"  name="title" id="chatroomTitle" v-model="chatroomTitle" placeholder="Enter chatroom's title">
+                    <input type="text"  name="title" id="chatroomTitle" v-model="newChatroom" placeholder="Enter chatroom's title">
                 </fieldset>
                 <input type="submit" value="Create">
             </form>
 
             <hr>
             <!--Affichage Chatroom de l'utilisateur-->
-            <h3>Chatroom list</h3>
+            <h3>Chatrooms list of user</h3>
             <table>
                 <thead>
                 <tr>
                     <th>id</th>
                     <th>title</th>
-                    <th>user_id</th>
                     <th>created</th>
                     <th>modified</th>
                     <th>update</th>
@@ -103,13 +58,12 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-if="chatroomDatasArray.length === 0">
+                <tr v-if="chatroomsUser.length === 0">
                     <td colspan="5">No chatroom found</td>
                 </tr>
-                <tr v-else v-for="chatroomData in chatroomDatasArray" v-bind:key="chatroomData.title">
+                <tr v-else v-for="chatroomData in chatroomsUser" v-bind:key="chatroomData.title">
                     <td>{{ chatroomData.id }}</td>
                     <td>{{ chatroomData.title }}</td>
-                    <td>{{ chatroomData.user_id }}</td>
                     <td>{{ chatroomData.created }}</td>
                     <td>{{ chatroomData.modified }}</td>
                     <td><button v-on:click="displayUpdateChatroomForm(chatroomData.title)">update</button></td>
@@ -120,7 +74,7 @@
 
             <hr>
             <!--Modification d'une chatroom-->
-            <h3>Update chatroom {{ updateTitleChat }}</h3>
+            <h3>Update a chatroom</h3>
             <form @submit="updateChatroom">
                 <fieldset>
                     <legend>Update chatroom</legend>
@@ -154,6 +108,50 @@
             </table>
 
 
+            <!--MESSAGES-->
+
+            <hr>
+            <!--Un utilisateur peut poster un message dans une chatroom-->
+            <h3>Add message in Chatroom</h3>
+            <form @submit="sendMessage">
+                <fieldset>
+                    <legend>Send message in Chatroom</legend>
+                    <label for="messageContent">Content</label>
+                    <textarea name="messageContent" id="messageContent" v-model="messageContent" placeholder="Enter your message"></textarea>
+                    <label for="messagechatroom">Chatroom</label>
+                    <select name="messagechatroom" id="messagechatroom" v-model="messageChatroom">
+                        <option v-for="chatroomData in chatroomsUser" v-bind:key="chatroomData.title" :value="chatroomData.id">{{ chatroomData.title }}</option>
+                    </select>
+                </fieldset>
+                <input type="submit" value="Send Message">
+            </form>
+
+            <hr>
+            <!--Affichage Messages de l'utilisateur-->
+            <h3>Messages list of user</h3>
+            <table>
+                <thead>
+                <tr>
+                    <th>content</th>
+                    <th>created</th>
+                    <th>chatroom_id</th>
+                    <th>delete</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-if="messageDatasArray.length === 0">
+                    <td colspan="5">No message found</td>
+                </tr>
+                <tr v-else v-for="messageData in messageDatasArray" v-bind:key="messageData.content">
+                    <td>{{ messageData.content }}</td>
+                    <td>{{ messageData.created }}</td>
+                    <td>{{ messageData.chatroom_id }}</td>
+                    <td><button v-on:click="deleteMessage(messageData.id)">delete</button></td>
+                </tr>
+                </tbody>
+            </table>
+
+
         </div>
 
 
@@ -171,9 +169,12 @@
 
                 messageDatasArray: [],
 
-                chatroomTitle: '',
-                chatroomDatasArray: [],
+                // formulaire ajout d'une chatroom
+                newChatroom: '',
+                // liste des chatrooms utilisateur
+                chatroomsUser: [],
 
+                // formulaire ajout message à une chatroom
                 messageContent: '',
                 messageChatroom: '',
 
@@ -261,6 +262,12 @@
                         if (answer === true) {
                             // on vide le tableau d'erreurs
                             self.errorsArray = [];
+
+                            // on vide les champs du formulaire
+                            self.messageContent = '';
+                            self.messageChatroom = '';
+
+                            // on met à jour les messages de l'utilisateur
                             self.getMessageUser();
                         }
                         else {
@@ -331,7 +338,7 @@
             createChatroom : function(e) {
                 let self = this;
                 let data = {
-                    title: this.chatroomTitle,
+                    title: this.newChatroom,
                     user_id: this.user.id
                 };
                 // console.log(data);
@@ -356,6 +363,10 @@
                         if (answer === true) {
                             // on vide le tableau d'erreurs
                             self.errorsArray = [];
+
+                            // on vide le champ du formulaire
+                            self.newChatroom = '';
+
                             // on met à jour la liste des chatrooms de l'utilisateur
                             self.getChatroomUser(e);
                         }
@@ -391,7 +402,7 @@
 
                         if (answer.length !== 0) {
                             // stockage des différents chatrooms de l'user
-                            self.chatroomDatasArray = answer;
+                            self.chatroomsUser = answer;
                         }
 
                     });
@@ -406,8 +417,8 @@
                let data = {
                    last_title: this.updateTitleChat,
                    title: this.newTitleChat
-               }
-               console.log(data);
+               };
+               // console.log(data);
 
                 // appel fetch
                 fetch('http://localhost/b3-chatroom-backend/controllers/chatrooms_controller.php?action=update', {
@@ -424,7 +435,7 @@
                     })
                     .then(function(answer) {
                         // recupération des valeurs retournées dans la promesse (ex: false ou erreurs à afficher si les champs requis pas bons)
-                        console.log(JSON.stringify(answer));
+                        // console.log(JSON.stringify(answer));
                         // si une chatroom a été enregistré
                         if (answer === true) {
                             // on vide le tableau d'erreurs
