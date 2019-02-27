@@ -39,7 +39,7 @@ ul {
   padding-left: 0;
   margin-top: 0;
 }
-form {
+form, table {
   margin: auto;
 }
 input, textarea, select, fieldset {

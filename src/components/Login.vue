@@ -26,10 +26,11 @@
 
 
         <div v-else>
-            <h2>User connecté : {{ user.handle }} </h2>
+            <h2>Connected user : {{ user.handle }} </h2>
 
             <!--MESSAGES-->
 
+            <hr>
             <!--Un utilisateur peut poster un message dans une chatroom-->
             <h3>Add message in Chatroom</h3>
             <form @submit="sendMessage">
@@ -45,6 +46,7 @@
                 <input type="submit" value="Send Message">
             </form>
 
+            <hr>
             <!--Affichage Messages de l'utilisateur-->
             <h3>Messages list of user</h3>
             <table>
@@ -64,7 +66,7 @@
                     <td>{{ messageData.content }}</td>
                     <td>{{ messageData.created }}</td>
                     <td>{{ messageData.chatroom_id }}</td>
-                    <td><button>delete</button></td>
+                    <td><button v-on:click="deleteMessage(messageData.id)">delete</button></td>
                 </tr>
                 </tbody>
             </table>
@@ -73,6 +75,7 @@
 
             <!--CHATROOM-->
 
+            <hr>
             <!--Création Chatroom par un utilisateur-->
             <h3>Create chatroom</h3>
             <form @submit="createChatroom">
@@ -84,6 +87,7 @@
                 <input type="submit" value="Create">
             </form>
 
+            <hr>
             <!--Affichage Chatroom de l'utilisateur-->
             <table>
                 <thead>
@@ -106,12 +110,14 @@
                     <td>{{ chatroomData.user_id }}</td>
                     <td>{{ chatroomData.created }}</td>
                     <td>{{ chatroomData.modified }}</td>
+                    <td><button v-on:click="displayMessages(chatroomData.id, chatroomData.title)">display</button></td>
                 </tr>
                 </tbody>
             </table>
 
-            <!--<div v-for="chatroomData in chatroomDatasArray" v-bind:key="chatroomData.title">
-                <h3>Message list of {{ chatroomData.title}}</h3>
+            <hr>
+            <!--Affichage message d'une chatroom-->
+                <h3>Message list of {{ selectedChatroom }}</h3>
                 <table>
                     <thead>
                     <tr>
@@ -121,17 +127,16 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr v-if="messageDatasArray.length === 0">
+                    <tr v-if="msgchatDatasArray.length === 0">
                         <td colspan="5">No message found</td>
                     </tr>
-                    <tr v-else v-for="messageData in messageDatasArray" v-bind:key="messageData.content">
-                        <td>{{ messageData.content }}</td>
-                        <td>{{ messageData.created }}</td>
-                        <td><button>delete</button></td>
+                    <tr v-else v-for="msgchatData in msgchatDatasArray" v-bind:key="msgchatData.content">
+                        <td>{{ msgchatData.content }}</td>
+                        <td>{{ msgchatData.created }}</td>
+                        <td><button v-on:click="deleteMessage(msgchatData.id)">delete</button></td>
                     </tr>
                     </tbody>
                 </table>
-            </div>-->
 
 
         </div>
@@ -156,6 +161,9 @@
 
                 messageContent: '',
                 messageChatroom: '',
+
+                selectedChatroom: '',
+                msgchatDatasArray: [],
 
                 errorsArray: []
             }
@@ -193,7 +201,7 @@
                             self.user = answer;
                             // on vide le tableau d'erreurs
                             self.errorsArray = [];
-                            self.getMessageUser(e);
+                            self.getMessageUser();
                             self.getChatroomUser(e);
                         }
                         else {
@@ -233,7 +241,7 @@
                         if (answer === true) {
                             // on vide le tableau d'erreurs
                             self.errorsArray = [];
-                            self.getMessageUser(e);
+                            self.getMessageUser();
                         }
                         else {
                             // sinon on affiche les erreurs lui expliquant pourquoi il n'a pas pu créer une chatroom
@@ -241,6 +249,64 @@
                         }
                     });
                 e.preventDefault();
+            },
+            getMessageUser : function () {
+                let self = this;
+                let data = {
+                    user_id: this.user.id
+                };
+
+                // appel fetch
+                fetch('http://localhost/b3-chatroom-backend/controllers/messages_controller.php?action=list', {
+                    method: 'POST', // or 'PUT'
+                    body: JSON.stringify(data), // data can be string or {object}!
+                    headers:{
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(function(response) {
+                        // reponse retournee par le backend php sous la forme de promesse
+                        // lecture données et parsing json()
+                        return response.json();
+                    })
+                    .then(function(answer) {
+                        // recupération des valeurs retournées dans la promesse (ex: false ou chatroom(s) de l'utilisateur)
+                        // console.log(JSON.stringify(answer));
+
+                        if (answer.length !== 0) {
+                            // stockage des différents chatrooms de l'user
+                            self.messageDatasArray = answer;
+                        }
+
+                    });
+            },
+            deleteMessage : function(msg_id) {
+                let self = this;
+
+                // appel fetch
+                fetch('http://localhost/b3-chatroom-backend/controllers/messages_controller.php?action=delete', {
+                    method: 'POST', // or 'PUT'
+                    body: JSON.stringify(msg_id), // data can be string or {object}!
+                    headers:{
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(function(response) {
+                        // reponse retournee par le backend php sous la forme de promesse
+                        // lecture données et parsing json()
+                        return response.json();
+                    })
+                    .then(function(answer) {
+                        // recupération des valeurs retournées dans la promesse (ex: false ou erreurs à afficher si les champs requis pas bons)
+                        // console.log(JSON.stringify(answer));
+                        // si un message a été supprimé
+                        if (answer === true) {
+                            // on vide le tableau d'erreurs
+                            self.errorsArray = [];
+                            // on recharche la liste des messages utilisateur
+                            self.getMessageUser();
+                        }
+                    });
             },
             createChatroom : function(e) {
                 let self = this;
@@ -311,14 +377,15 @@
                     });
                 e.preventDefault();
             },
-            getMessageUser : function (e) {
+            displayMessages: function (chat_id, chat_title) {
                 let self = this;
                 let data = {
-                    user_id: this.user.id
+                    user_id: this.user.id,
+                    chatroom_id: chat_id
                 };
 
                 // appel fetch
-                fetch('http://localhost/b3-chatroom-backend/controllers/messages_controller.php?action=list', {
+                fetch('http://localhost/b3-chatroom-backend/controllers/chatrooms_controller.php?action=displayMessages', {
                     method: 'POST', // or 'PUT'
                     body: JSON.stringify(data), // data can be string or {object}!
                     headers:{
@@ -335,45 +402,13 @@
                         // console.log(JSON.stringify(answer));
 
                         if (answer.length !== 0) {
-                            // stockage des différents chatrooms de l'user
-                            self.messageDatasArray = answer;
+                            // stockage des différents messages des chatrooms
+                            self.msgchatDatasArray = answer;
+                            self.selectedChatroom = chat_title;
                         }
 
                     });
-                e.preventDefault();
-            },
-            /*getMessageChatroom : function (e) {
-                let self = this;
-                let data = {
-                    user_id: this.user.id
-                    chatroom_id: this.
-                };
-
-                // appel fetch
-                fetch('http://localhost/b3-chatroom-backend/controllers/messages_controller.php?action=list', {
-                    method: 'POST', // or 'PUT'
-                    body: JSON.stringify(data), // data can be string or {object}!
-                    headers:{
-                        'Content-Type': 'application/json'
-                    }
-                })
-                    .then(function(response) {
-                        // reponse retournee par le backend php sous la forme de promesse
-                        // lecture données et parsing json()
-                        return response.json();
-                    })
-                    .then(function(answer) {
-                        // recupération des valeurs retournées dans la promesse (ex: false ou chatroom(s) de l'utilisateur)
-                        console.log(JSON.stringify(answer));
-
-                        if (answer.length !== 0) {
-                            // stockage des différents chatrooms de l'user
-                            self.messageDatasArray = answer;
-                        }
-
-                    });
-                e.preventDefault();
-            }*/
+            }
         }
     }
 </script>
