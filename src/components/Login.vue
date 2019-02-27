@@ -196,7 +196,6 @@
                     login: this.userLogin,
                     password: this.userPassword
                 };
-                // console.log(data);
 
                 // appel fetch
                 fetch('http://localhost/b3-chatroom-backend/controllers/users_controller.php?action=login', {
@@ -207,7 +206,6 @@
                     }
                 })
                     .then(function(response) {
-                        // console.log(response.json());
                         // reponse retournee par le backend php sous la forme de promesse
                         // lecture données et parsing json()
                         return response.json();
@@ -257,7 +255,6 @@
                     })
                     .then(function(answer) {
                         // recupération des valeurs retournées dans la promesse (ex: false ou erreurs à afficher si les champs requis pas bons)
-                        // console.log(JSON.stringify(answer));
                         // si une chatroom a été enregistré
                         if (answer === true) {
                             // on vide le tableau d'erreurs
@@ -298,7 +295,6 @@
                     })
                     .then(function(answer) {
                         // recupération des valeurs retournées dans la promesse (ex: false ou chatroom(s) de l'utilisateur)
-                        // console.log(JSON.stringify(answer));
 
                         if (answer.length !== 0) {
                             // stockage des différents chatrooms de l'user
@@ -325,7 +321,6 @@
                     })
                     .then(function(answer) {
                         // recupération des valeurs retournées dans la promesse (ex: false ou erreurs à afficher si les champs requis pas bons)
-                        // console.log(JSON.stringify(answer));
                         // si un message a été supprimé
                         if (answer === true) {
                             // on vide le tableau d'erreurs
@@ -341,7 +336,6 @@
                     title: this.newChatroom,
                     user_id: this.user.id
                 };
-                // console.log(data);
 
                 // appel fetch
                 fetch('http://localhost/b3-chatroom-backend/controllers/chatrooms_controller.php?action=register', {
@@ -358,7 +352,6 @@
                     })
                     .then(function(answer) {
                         // recupération des valeurs retournées dans la promesse (ex: false ou erreurs à afficher si les champs requis pas bons)
-                        // console.log(JSON.stringify(answer));
                         // si une chatroom a été enregistré
                         if (answer === true) {
                             // on vide le tableau d'erreurs
@@ -398,7 +391,6 @@
                     })
                     .then(function(answer) {
                         // recupération des valeurs retournées dans la promesse (ex: false ou chatroom(s) de l'utilisateur)
-                        // console.log(JSON.stringify(answer));
 
                         if (answer.length !== 0) {
                             // stockage des différents chatrooms de l'user
@@ -418,7 +410,6 @@
                    last_title: this.updateTitleChat,
                    title: this.newTitleChat
                };
-               // console.log(data);
 
                 // appel fetch
                 fetch('http://localhost/b3-chatroom-backend/controllers/chatrooms_controller.php?action=update', {
@@ -472,7 +463,6 @@
                     })
                     .then(function(answer) {
                         // recupération des valeurs retournées dans la promesse (ex: false ou chatroom(s) de l'utilisateur)
-                        // console.log(JSON.stringify(answer));
 
                         if (answer.length !== 0) {
                             // stockage des différents messages des chatrooms
